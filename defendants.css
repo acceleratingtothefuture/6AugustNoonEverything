@@ -12,6 +12,10 @@ body {
   line-height: 1.6;
 }
 
+canvas {
+  max-width: 100%;
+}
+
 /* NAVBAR */
 .nav {
   background: linear-gradient(90deg, #1a1c3a, #0d0e22);
@@ -122,12 +126,30 @@ body {
   color: #444;
 }
 
-/* CHART */
-.chart-container {
-  background: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-  margin: 0 auto 40px;
-  max-width: 800px;
+/* CHARTS */
+.demo-pies {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 40px;
+}
+
+.pie-box {
+  width: 260px;
+  text-align: center;
+}
+
+.chart-label {
+  font-weight: 600;
+  margin-top: 12px;
+  color: #333;
+}
+
+.demo-text {
+  font-size: 1rem;
+  font-weight: 700;
+  min-width: 200px;
+  text-align: center;
+  color: #007acc;
 }
