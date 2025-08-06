@@ -12,10 +12,6 @@ body {
   line-height: 1.6;
 }
 
-canvas {
-  max-width: 100%;
-}
-
 /* NAVBAR */
 .nav {
   background: linear-gradient(90deg, #1a1c3a, #0d0e22);
@@ -72,7 +68,7 @@ canvas {
   color: #a9b0d4;
 }
 
-/* NAVIGATION */
+/* NAVIGATION LINKS */
 .main-nav {
   display: flex;
   justify-content: center;
@@ -106,19 +102,19 @@ canvas {
 /* MAIN SECTION */
 #panelMain {
   padding: 30px 20px;
-  max-width: 1100px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
 .dashboard-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
 .dashboard-header h2 {
   font-size: 2.2rem;
   font-weight: 800;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .dashboard-header p {
@@ -126,27 +122,32 @@ canvas {
   color: #444;
 }
 
-/* CHART AREA */
-.bar-chart-box {
-  padding: 30px;
+/* CHARTS */
+.chart-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+  flex-direction: column;
 }
 
-.hover-box {
-  text-align: center;
-  margin-bottom: 20px;
-  min-height: 70px;
+#chartBox {
+  width: 100%;
+  max-width: 900px;
+  padding: 20px;
 }
 
-.hover-line {
-  font-size: 1.2rem;
+canvas {
+  width: 100% !important;
+  height: auto !important;
+}
+
+#demoText {
+  font-size: 1.15rem;
   font-weight: 700;
-  margin: 4px 0;
-}
-
-#hoverDef {
-  color: #007acc;
-}
-
-#hoverPop {
-  color: #ff9800;
+  text-align: center;
+  padding: 15px 20px 5px;
+  min-height: 70px;
+  margin-top: 10px;
+  line-height: 1.5;
 }
