@@ -15,8 +15,28 @@ const COLORS = [
 
 const folder = './data/';
 
-async function loadData() {
+async function getLatestFile() {
   const year = new Date().getFullYear();
+  for (let y = year; y >= 2015; y--) {
+    const res = await fetch(`${folder}defendants_${y}.xlsx`, { method: 'HEAD' });
+    if (res.ok) return y;
+  }
+  throw new Error('No valid defendants_[year].xlsx file found.');
+}
+
+function normalizeEthnicity(raw) {
+  const eth = raw.toLowerCase();
+  if (eth.includes('white')) return 'White';
+  if (eth.includes('black')) return 'Black or African American';
+  if (eth.includes('asian')) return 'Asian';
+  if (eth.includes('hispanic')) return 'Hispanic or Latino';
+  if (eth.includes('american indian') || eth.includes('alaska')) return 'American Indian and Alaska Native';
+  if (eth.includes('hawaiian') || eth.includes('pacific')) return 'Native Hawaiian and Other Pacific Islander';
+  return null;
+}
+
+async function loadData() {
+  const year = await getLatestFile();
   const buffer = await fetch(`${folder}defendants_${year}.xlsx`).then(r => r.arrayBuffer());
   const wb = XLSX.read(buffer, { type: 'array' });
   const sheet = wb.Sheets[wb.SheetNames[0]];
@@ -29,31 +49,21 @@ async function loadData() {
     const d = cleanDefRow(row);
     if (!d || !d.ethnicity) return;
 
-    let eth = d.ethnicity.toLowerCase();
-    if (eth.includes('white')) eth = 'White';
-    else if (eth.includes('black')) eth = 'Black or African American';
-    else if (eth.includes('asian')) eth = 'Asian';
-    else if (eth.includes('hispanic')) eth = 'Hispanic or Latino';
-    else if (eth.includes('american indian') || eth.includes('alaska')) eth = 'American Indian and Alaska Native';
-    else if (eth.includes('hawaiian') || eth.includes('pacific')) eth = 'Native Hawaiian and Other Pacific Islander';
-    else return;
+    const eth = normalizeEthnicity(d.ethnicity);
+    if (!eth) return;
 
     counts[eth] = (counts[eth] || 0) + 1;
     total++;
   });
 
-  const defendantData = [], popData = [], labels = [], colors = [];
+  const labels = Object.keys(POPULATION);
+  const popTotal = Object.values(POPULATION).reduce((a, b) => a + b, 0);
 
-  Object.keys(POPULATION).forEach((eth, i) => {
-    const defPct = (counts[eth] || 0) / total * 100;
-    const popPct = POPULATION[eth] / Object.values(POPULATION).reduce((a, b) => a + b) * 100;
-    defendantData.push(defPct);
-    popData.push(popPct);
-    labels.push(eth);
-    colors.push(COLORS[i % COLORS.length]);
-  });
+  const defData = labels.map(k => (counts[k] || 0) / total * 100);
+  const popData = labels.map(k => POPULATION[k] / popTotal * 100);
+  const colors = labels.map((_, i) => COLORS[i % COLORS.length]);
 
-  buildCharts(labels, defendantData, popData, colors);
+  buildCharts(labels, defData, popData, colors);
 }
 
 function buildCharts(labels, defData, popData, colors) {
@@ -77,19 +87,19 @@ function buildCharts(labels, defData, popData, colors) {
 
   const txt = document.getElementById('demoText');
 
-  document.getElementById('pieDef').onmousemove = function (evt) {
-    const point = pie1.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
-    if (!point.length) return;
-    const i = point[0].index;
+  const showHover = (i) => {
     txt.textContent = `${labels[i]} — ${defData[i].toFixed(2)}% of defendants vs ${popData[i].toFixed(2)}% of population`;
     txt.style.color = colors[i];
   };
-  document.getElementById('piePop').onmousemove = function (evt) {
+
+  document.getElementById('pieDef').onmousemove = (evt) => {
+    const point = pie1.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+    if (point.length) showHover(point[0].index);
+  };
+
+  document.getElementById('piePop').onmousemove = (evt) => {
     const point = pie2.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
-    if (!point.length) return;
-    const i = point[0].index;
-    txt.textContent = `${labels[i]} — ${defData[i].toFixed(2)}% of defendants vs ${popData[i].toFixed(2)}% of population`;
-    txt.style.color = colors[i];
+    if (point.length) showHover(point[0].index);
   };
 }
 
