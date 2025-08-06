@@ -1,7 +1,8 @@
 import { cleanCaseRow, cleanDefRow } from '../cleanData.js';
 
 const FOLDER = './data/';
-let rows = [];
+window.caseRows = window.caseRows || [];
+const rows = window.caseRows;
 
 function showStatus(msg) {
   const el = document.getElementById('statusMessage');
@@ -60,7 +61,7 @@ async function loadData(years) {
   }
 }
 
-const hoverBar = {
+const hoverBar = window.hoverBar || {
   id: 'hoverBar',
   afterDraw(chart) {
     if (chart.config.type !== 'line') return;
@@ -73,6 +74,7 @@ const hoverBar = {
     ctx.restore();
   }
 };
+window.hoverBar = hoverBar;
 if (window.Chart && !Chart.registry.plugins.get('hoverBar')) {
   Chart.register(hoverBar);
 }
