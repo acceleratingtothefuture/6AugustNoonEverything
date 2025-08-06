@@ -38,9 +38,62 @@
   <section id="panelMain">
     <div class="dashboard-header">
       <h2>Case Processes</h2>
-      <p>This page is under construction.</p>
+      <p>Average days to file and sentence cases</p>
+    </div>
+
+    <div class="chart-box">
+      <div class="chart-head">
+        <div class="chart-title">Average days from receiving case to filing charges</div>
+        <div class="chart-month" id="fileMonth"></div>
+      </div>
+      <div class="chart-number" id="fileValue"></div>
+      <div class="chart-canvas">
+        <canvas id="fileChart" width="660" height="160"></canvas>
+      </div>
+      <div class="range-labels"><span>Jan</span><span>Dec</span></div>
+    </div>
+
+    <div class="chart-box">
+      <div class="chart-head">
+        <div class="chart-title">Average days from filing charges to sentencing</div>
+        <div class="chart-month" id="sentMonth"></div>
+      </div>
+      <div class="chart-number" id="sentValue"></div>
+      <div class="chart-canvas">
+        <canvas id="sentChart" width="660" height="160"></canvas>
+      </div>
+      <div class="range-labels"><span>Jan</span><span>Dec</span></div>
+    </div>
+
+    <div class="chart-box">
+      <div class="chart-head">
+        <div class="chart-title">Median days from receiving case to filing charges</div>
+        <div class="chart-month" id="fileMedianMonth"></div>
+      </div>
+      <div class="chart-number" id="fileMedianValue"></div>
+      <div class="chart-canvas">
+        <canvas id="fileMedianChart" width="660" height="160"></canvas>
+      </div>
+      <div class="range-labels"><span>Jan</span><span>Dec</span></div>
+    </div>
+
+    <div class="chart-box">
+      <div class="chart-head">
+        <div class="chart-title">Median days from filing charges to sentencing</div>
+        <div class="chart-month" id="sentMedianMonth"></div>
+      </div>
+      <div class="chart-number" id="sentMedianValue"></div>
+      <div class="chart-canvas">
+        <canvas id="sentMedianChart" width="660" height="160"></canvas>
+      </div>
+      <div class="range-labels"><span>Jan</span><span>Dec</span></div>
     </div>
   </section>
+
+  <!-- scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module" src="caseProcessesCharts.js"></script>
 
 </body>
 </html>
