@@ -10,6 +10,13 @@
 
   <!-- styles -->
   <link rel="stylesheet" href="defendants.css" />
+
+  <!-- libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- logic -->
+  <script type="module" defer src="defendants.js"></script>
 </head>
 <body>
 
@@ -38,7 +45,11 @@
   <section id="panelMain">
     <div class="dashboard-header">
       <h2>Defendants</h2>
-      <p>This page is under construction.</p>
+      <p>Defendant ethnicity compared to county population</p>
+    </div>
+
+    <div class="chart-container">
+      <canvas id="ethnicityChart" height="140"></canvas>
     </div>
   </section>
 
