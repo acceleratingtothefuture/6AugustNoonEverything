@@ -1,8 +1,6 @@
-// defendants.js
 import { cleanDefRow } from './cleanData.js';
-import Chart from 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js';
 
-const CENSUS_COUNTS = {
+const POPULATION = {
   'Hispanic or Latino': 153027,
   'White': 16813,
   'Black or African American': 4362,
@@ -11,97 +9,88 @@ const CENSUS_COUNTS = {
   'Native Hawaiian and Other Pacific Islander': 165
 };
 
-const COLOR_MAP = {
-  'Hispanic or Latino': '#f44336',
-  'White': '#2196f3',
-  'Black or African American': '#4caf50',
-  'Asian': '#ff9800',
-  'American Indian and Alaska Native': '#9c27b0',
-  'Native Hawaiian and Other Pacific Islander': '#00bcd4'
-};
-
-const ETHNICITY_MAP = {
-  'hispanic': 'Hispanic or Latino',
-  'white': 'White',
-  'black': 'Black or African American',
-  'african american': 'Black or African American',
-  'asian': 'Asian',
-  'alaska': 'American Indian and Alaska Native',
-  'american indian': 'American Indian and Alaska Native',
-  'hawaiian': 'Native Hawaiian and Other Pacific Islander',
-  'pacific': 'Native Hawaiian and Other Pacific Islander'
-};
-
-function standardizeEthnicity(raw) {
-  const t = String(raw).toLowerCase();
-  for (const key in ETHNICITY_MAP) {
-    if (t.includes(key)) return ETHNICITY_MAP[key];
-  }
-  return null;
-}
+const COLORS = [
+  '#e91e63', '#ff9800', '#ffe600', '#4caf50', '#00bcd4', '#9c27b0'
+];
 
 const folder = './data/';
-let rows = [];
 
-async function loadDefendants() {
-  const y = new Date().getFullYear();
-  const defBuf = await fetch(`${folder}defendants_${y}.xlsx`).then(r => r.arrayBuffer());
-  const wb = XLSX.read(defBuf, { type: 'array' });
-  const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
+async function loadData() {
+  const year = new Date().getFullYear();
+  const buffer = await fetch(`${folder}defendants_${year}.xlsx`).then(r => r.arrayBuffer());
+  const wb = XLSX.read(buffer, { type: 'array' });
+  const sheet = wb.Sheets[wb.SheetNames[0]];
+  const raw = XLSX.utils.sheet_to_json(sheet, { defval: '' });
 
   const counts = {};
   let total = 0;
 
-  raw.forEach(d => {
-    const clean = cleanDefRow(d);
-    if (!clean) return;
-    const group = standardizeEthnicity(clean.ethnicity);
-    if (!group || !(group in CENSUS_COUNTS)) return;
-    counts[group] = (counts[group] || 0) + 1;
+  raw.forEach(row => {
+    const d = cleanDefRow(row);
+    if (!d || !d.ethnicity) return;
+
+    let eth = d.ethnicity.toLowerCase();
+    if (eth.includes('white')) eth = 'White';
+    else if (eth.includes('black')) eth = 'Black or African American';
+    else if (eth.includes('asian')) eth = 'Asian';
+    else if (eth.includes('hispanic')) eth = 'Hispanic or Latino';
+    else if (eth.includes('american indian') || eth.includes('alaska')) eth = 'American Indian and Alaska Native';
+    else if (eth.includes('hawaiian') || eth.includes('pacific')) eth = 'Native Hawaiian and Other Pacific Islander';
+    else return;
+
+    counts[eth] = (counts[eth] || 0) + 1;
     total++;
   });
 
-  buildCharts(counts, total);
+  const defendantData = [], popData = [], labels = [], colors = [];
+
+  Object.keys(POPULATION).forEach((eth, i) => {
+    const defPct = (counts[eth] || 0) / total * 100;
+    const popPct = POPULATION[eth] / Object.values(POPULATION).reduce((a, b) => a + b) * 100;
+    defendantData.push(defPct);
+    popData.push(popPct);
+    labels.push(eth);
+    colors.push(COLORS[i % COLORS.length]);
+  });
+
+  buildCharts(labels, defendantData, popData, colors);
 }
 
-function buildCharts(defCounts, totalDefendants) {
-  const labels = Object.keys(CENSUS_COUNTS);
-  const defData = labels.map(g => +(100 * (defCounts[g] || 0) / totalDefendants).toFixed(2));
-  const popData = labels.map(g => +(100 * CENSUS_COUNTS[g] / Object.values(CENSUS_COUNTS).reduce((a, b) => a + b)).toFixed(2));
-  const colors = labels.map(g => COLOR_MAP[g]);
-
-  const ctx1 = document.getElementById('defChart').getContext('2d');
-  const ctx2 = document.getElementById('popChart').getContext('2d');
-  const summary = document.getElementById('summaryBox');
-
-  const chartOptions = (title) => ({
+function buildCharts(labels, defData, popData, colors) {
+  const pie1 = new Chart(document.getElementById('pieDef'), {
     type: 'pie',
     data: {
       labels,
-      datasets: [{
-        data: title === 'Defendants' ? defData : popData,
-        backgroundColor: colors
-      }]
+      datasets: [{ data: defData, backgroundColor: colors }]
     },
-    options: {
-      plugins: {
-        title: {
-          display: true,
-          text: title
-        },
-        tooltip: { enabled: false }
-      },
-      onHover: (e, els, chart) => {
-        if (!els.length) return;
-        const i = els[0].index;
-        const l = labels[i];
-        summary.innerHTML = `<b style="color:${colors[i]}">${l}</b>: ${defData[i]}% of defendants vs ${popData[i]}% of county population`;
-      }
-    }
+    options: { plugins: { legend: { position: 'right' } } }
   });
 
-  new Chart(ctx1, chartOptions('Defendants'));
-  new Chart(ctx2, chartOptions('Population'));
+  const pie2 = new Chart(document.getElementById('piePop'), {
+    type: 'pie',
+    data: {
+      labels,
+      datasets: [{ data: popData, backgroundColor: colors }]
+    },
+    options: { plugins: { legend: { display: false } } }
+  });
+
+  const txt = document.getElementById('demoText');
+
+  document.getElementById('pieDef').onmousemove = function (evt) {
+    const point = pie1.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+    if (!point.length) return;
+    const i = point[0].index;
+    txt.textContent = `${labels[i]} — ${defData[i].toFixed(2)}% of defendants vs ${popData[i].toFixed(2)}% of population`;
+    txt.style.color = colors[i];
+  };
+  document.getElementById('piePop').onmousemove = function (evt) {
+    const point = pie2.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+    if (!point.length) return;
+    const i = point[0].index;
+    txt.textContent = `${labels[i]} — ${defData[i].toFixed(2)}% of defendants vs ${popData[i].toFixed(2)}% of population`;
+    txt.style.color = colors[i];
+  };
 }
 
-document.addEventListener('DOMContentLoaded', loadDefendants);
+loadData();
