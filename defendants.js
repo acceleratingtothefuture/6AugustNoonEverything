@@ -1,8 +1,8 @@
+// defendants.js
 import { cleanDefRow } from './cleanData.js';
+import Chart from 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js';
 
-const FOLDER = './data/';
-
-const INCLUDED_CATEGORIES = {
+const CENSUS_COUNTS = {
   'Hispanic or Latino': 153027,
   'White': 16813,
   'Black or African American': 4362,
@@ -11,111 +11,97 @@ const INCLUDED_CATEGORIES = {
   'Native Hawaiian and Other Pacific Islander': 165
 };
 
-const COLORS = ['#2196f3', '#f44336'];
+const COLOR_MAP = {
+  'Hispanic or Latino': '#f44336',
+  'White': '#2196f3',
+  'Black or African American': '#4caf50',
+  'Asian': '#ff9800',
+  'American Indian and Alaska Native': '#9c27b0',
+  'Native Hawaiian and Other Pacific Islander': '#00bcd4'
+};
 
-function mapEthnicity(rawValue) {
-  const val = (rawValue || '').toLowerCase();
+const ETHNICITY_MAP = {
+  'hispanic': 'Hispanic or Latino',
+  'white': 'White',
+  'black': 'Black or African American',
+  'african american': 'Black or African American',
+  'asian': 'Asian',
+  'alaska': 'American Indian and Alaska Native',
+  'american indian': 'American Indian and Alaska Native',
+  'hawaiian': 'Native Hawaiian and Other Pacific Islander',
+  'pacific': 'Native Hawaiian and Other Pacific Islander'
+};
 
-  if (val.includes('hispanic')) return 'Hispanic or Latino';
-  if (val.includes('white')) return 'White';
-  if (val.includes('black')) return 'Black or African American';
-  if (val.includes('asian')) return 'Asian';
-  if (val.includes('american indian')) return 'American Indian and Alaska Native';
-  if (val.includes('pacific islander') || val.includes('hawaiian')) return 'Native Hawaiian and Other Pacific Islander';
-
-  return null; // not one of the six valid groups
-}
-
-async function discoverLatestYear() {
-  const thisYear = new Date().getFullYear();
-  for (let y = thisYear; y >= 2015; y--) {
-    const res = await fetch(`${FOLDER}defendants_${y}.xlsx`, { method: 'HEAD' });
-    if (res.ok) return y;
+function standardizeEthnicity(raw) {
+  const t = String(raw).toLowerCase();
+  for (const key in ETHNICITY_MAP) {
+    if (t.includes(key)) return ETHNICITY_MAP[key];
   }
-  throw new Error('No defendants_YYYY.xlsx file found.');
+  return null;
 }
 
-async function loadData(year) {
-  const res = await fetch(`${FOLDER}defendants_${year}.xlsx`);
-  const buf = await res.arrayBuffer();
-  const wb = XLSX.read(buf, { type: 'array' });
-  const sheet = wb.Sheets[wb.SheetNames[0]];
-  const raw = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+const folder = './data/';
+let rows = [];
 
-  return raw
- .map(cleanDefRow)
-.filter(d => d && d.ethnicity)
-.map(d => {
-  const mapped = mapEthnicity(d.ethnicity);
-  return mapped ? { ...d, ethnicity: mapped } : null;
-})
-.filter(d => d);
+async function loadDefendants() {
+  const y = new Date().getFullYear();
+  const defBuf = await fetch(`${folder}defendants_${y}.xlsx`).then(r => r.arrayBuffer());
+  const wb = XLSX.read(defBuf, { type: 'array' });
+  const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
 
-}
-
-function countByEthnicity(rows) {
   const counts = {};
-  Object.keys(INCLUDED_CATEGORIES).forEach(k => counts[k] = 0);
+  let total = 0;
 
-  rows.forEach(d => {
-    if (counts.hasOwnProperty(d.ethnicity)) {
-      counts[d.ethnicity]++;
-    }
+  raw.forEach(d => {
+    const clean = cleanDefRow(d);
+    if (!clean) return;
+    const group = standardizeEthnicity(clean.ethnicity);
+    if (!group || !(group in CENSUS_COUNTS)) return;
+    counts[group] = (counts[group] || 0) + 1;
+    total++;
   });
 
-  return counts;
+  buildCharts(counts, total);
 }
 
-function buildChart(defCounts) {
-  const totalDefendants = Object.values(defCounts).reduce((a, b) => a + b, 0);
-  const totalPop = Object.values(INCLUDED_CATEGORIES).reduce((a, b) => a + b, 0);
+function buildCharts(defCounts, totalDefendants) {
+  const labels = Object.keys(CENSUS_COUNTS);
+  const defData = labels.map(g => +(100 * (defCounts[g] || 0) / totalDefendants).toFixed(2));
+  const popData = labels.map(g => +(100 * CENSUS_COUNTS[g] / Object.values(CENSUS_COUNTS).reduce((a, b) => a + b)).toFixed(2));
+  const colors = labels.map(g => COLOR_MAP[g]);
 
-  const labels = Object.keys(INCLUDED_CATEGORIES);
-  const defData = labels.map(k => (defCounts[k] || 0) / totalDefendants * 100);
-  const popData = labels.map(k => INCLUDED_CATEGORIES[k] / totalPop * 100);
+  const ctx1 = document.getElementById('defChart').getContext('2d');
+  const ctx2 = document.getElementById('popChart').getContext('2d');
+  const summary = document.getElementById('summaryBox');
 
-  const ctx = document.getElementById('ethnicityChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'bar',
+  const chartOptions = (title) => ({
+    type: 'pie',
     data: {
       labels,
-      datasets: [
-        {
-          label: 'Defendants',
-          data: defData,
-          backgroundColor: COLORS[0]
-        },
-        {
-          label: 'County Population',
-          data: popData,
-          backgroundColor: COLORS[1]
-        }
-      ]
+      datasets: [{
+        data: title === 'Defendants' ? defData : popData,
+        backgroundColor: colors
+      }]
     },
     options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: { callback: v => v + '%' }
-        }
-      },
       plugins: {
-        tooltip: {
-          callbacks: {
-            label: ctx => ctx.raw.toFixed(2) + '%'
-          }
-        }
+        title: {
+          display: true,
+          text: title
+        },
+        tooltip: { enabled: false }
+      },
+      onHover: (e, els, chart) => {
+        if (!els.length) return;
+        const i = els[0].index;
+        const l = labels[i];
+        summary.innerHTML = `<b style="color:${colors[i]}">${l}</b>: ${defData[i]}% of defendants vs ${popData[i]}% of county population`;
       }
     }
   });
+
+  new Chart(ctx1, chartOptions('Defendants'));
+  new Chart(ctx2, chartOptions('Population'));
 }
 
-discoverLatestYear()
-  .then(loadData)
-  .then(countByEthnicity)
-  .then(buildChart)
-  .catch(err => {
-    console.error(err);
-    alert('Failed to load defendant data.');
-  });
+document.addEventListener('DOMContentLoaded', loadDefendants);
