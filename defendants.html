@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Imperial County DA • Case Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Imperial County DA • Defendant Demographics</title>
 
   <!-- fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -11,12 +11,12 @@
   <!-- styles -->
   <link rel="stylesheet" href="defendants.css" />
 
-  <!-- libraries -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <!-- libs -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
-  <!-- logic -->
-  <script type="module" defer src="defendants.js"></script>
+  <!-- dashboard logic -->
+  <script type="module" src="defendants.js" defer></script>
 </head>
 <body>
 
@@ -44,12 +44,20 @@
 
   <section id="panelMain">
     <div class="dashboard-header">
-      <h2>Defendants</h2>
-      <p>Defendant ethnicity compared to county population</p>
+      <h2>Defendant Demographics</h2>
+      <p>This chart shows how defendant demographics compare to the Imperial County population.</p>
     </div>
 
-    <div class="chart-container">
-      <canvas id="ethnicityChart" height="140"></canvas>
+    <div class="demo-pies">
+      <div class="pie-box">
+        <canvas id="defendantsPie"></canvas>
+        <div class="chart-label">Defendants</div>
+      </div>
+      <div class="demo-text" id="demoText">Hover over a slice</div>
+      <div class="pie-box">
+        <canvas id="censusPie"></canvas>
+        <div class="chart-label">County Population</div>
+      </div>
     </div>
   </section>
 
