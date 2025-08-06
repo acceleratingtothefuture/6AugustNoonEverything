@@ -4,8 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Imperial County DA • Case Dashboard</title>
- <!-- fonts -->
+
+  <!-- fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
   <!-- styles -->
   <link rel="stylesheet" href="customAnalysis.css" />
 
@@ -19,86 +21,83 @@
 </head>
 <body>
 
-  <header class="site-header">
-    <div class="container">
-      <h1>Imperial County District Attorney's Office</h1>
-      <p>Data Dashboard</p>
+  <header class="nav">
+    <div class="branding">
+      <span class="brand-main">Imperial County District Attorney’s Office</span>
+      <span class="brand-sub">George Marquez, District Attorney</span>
     </div>
+    <img src="logo.png" alt="DA Logo" class="logo" />
   </header>
 
-<nav class="main-nav">
-  <a href="home.html">Home</a>
-  <a href="goals.html">Goals</a>
-  <a href="defendants.html">Defendants</a>
-  <a href="victims.html">Victims</a>
-  <a href="caseProcesses.html">Case Processes</a>
-  <a href="customAnalysis.html" class="active">Custom Analysis</a>
-</nav>
+  <section class="hero">
+    <h1>Data Dashboard</h1>
+    <p>Data transparency & data-driven decision-making</p>
+  </section>
 
+  <nav class="main-nav">
+    <a href="home.html">Home</a>
+    <a href="goals.html">Goals</a>
+    <a href="defendants.html">Defendants</a>
+    <a href="victims.html">Victims</a>
+    <a href="caseProcesses.html">Case Processes</a>
+    <a href="customAnalysis.html" class="active">Custom Analysis</a>
+  </nav>
 
+  <section id="panelMain">
+    <div class="dashboard-header">
+      <h2>Custom Analysis</h2>
+      <p>View case outcomes and demographics over time</p>
+    </div>
 
+    <div class="layout">
+      <!-- sidebar -->
+      <aside class="sidebar">
+        <h2>Filters</h2>
 
-  <!-- main panel -->
-      <section id="panelMain">
+        <label>Measure
+          <select id="metric">
+            <option value="all_cases">All cases received</option>
+            <option value="accepted">Accepted cases</option>
+            <option value="rejected">Rejected cases</option>
+            <optgroup label="Completed cases">
+              <option value="Sentenced">Sentenced</option>
+              <option value="Dismissed">Dismissed</option>
+            </optgroup>
+          </select>
+        </label>
 
-     <div class="dashboard-header">
-  <h2>Custom Analysis</h2>
-  <p>View case outcomes and demographics over time</p>
-</div>
+        <label>Time range
+          <select id="range">
+            <option value="last12">Last 12 months</option>
+            <option value="monthly">Monthly</option>
+            <option value="quarterly">Quarterly</option>
+            <option value="annual">Annual</option>
+          </select>
+        </label>
 
+        <label>Group by
+          <select id="dimension"></select>
+        </label>
 
-        <div class="layout">
-          <!-- sidebar -->
-          <aside class="sidebar">
-            <h2>Filters</h2>
+        <label class="checkbox">
+          <input type="checkbox" id="pieToggle" checked />
+          Use pie-chart mode
+        </label>
+      </aside>
 
-            <label>Measure
-              <select id="metric">
-                <option value="all_cases">All cases received</option>
-                <option value="accepted">Accepted cases</option>
-                <option value="rejected">Rejected cases</option>
-                <optgroup label="Completed cases">
-                  <option value="Sentenced">Sentenced</option>
-                  <option value="Dismissed">Dismissed</option>
-                </optgroup>
-              </select>
-            </label>
+      <!-- charts -->
+      <main class="dashboard">
+        <div id="compareSection" style="display:none;margin-top:40px;">
+          <h2 style="text-align:center;">Comparison chart</h2>
+          <div class="large-chart-container">
+            <canvas id="largeChart" height="150"></canvas>
+          </div>
+        </div>
 
-            <label>Time range
-              <select id="range">
-                <option value="last12">Last 12 months</option>
-                <option value="monthly">Monthly</option>
-                <option value="quarterly">Quarterly</option>
-                <option value="annual">Annual</option>
-              </select>
-            </label>
-
-            <label>Group by
-              <select id="dimension"></select>
-            </label>
-
-            <label class="checkbox">
-              <input type="checkbox" id="pieToggle" checked />
-              Use pie-chart mode
-            </label>
-          </aside>
-
-          <!-- charts -->
-          <main class="dashboard">
-            <div id="compareSection" style="display:none;margin-top:40px;">
-              <h2 style="text-align:center;">Comparison chart</h2>
-              <div class="large-chart-container">
-                <canvas id="largeChart" height="150"></canvas>
-              </div>
-            </div>
-
-            <section id="chartGrid" class="chart-grid"></section>
-          </main>
-        </div><!-- /.layout -->
-
-      </section><!-- /#panelMain -->
+        <section id="chartGrid" class="chart-grid"></section>
+      </main>
+    </div>
+  </section>
 
 </body>
 </html>
-
-
