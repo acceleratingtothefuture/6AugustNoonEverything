@@ -13,6 +13,19 @@ const INCLUDED_CATEGORIES = {
 
 const COLORS = ['#2196f3', '#f44336'];
 
+function mapEthnicity(rawValue) {
+  const val = (rawValue || '').toLowerCase();
+
+  if (val.includes('hispanic')) return 'Hispanic or Latino';
+  if (val.includes('white')) return 'White';
+  if (val.includes('black')) return 'Black or African American';
+  if (val.includes('asian')) return 'Asian';
+  if (val.includes('american indian')) return 'American Indian and Alaska Native';
+  if (val.includes('pacific islander') || val.includes('hawaiian')) return 'Native Hawaiian and Other Pacific Islander';
+
+  return null; // not one of the six valid groups
+}
+
 async function discoverLatestYear() {
   const thisYear = new Date().getFullYear();
   for (let y = thisYear; y >= 2015; y--) {
@@ -29,11 +42,13 @@ async function loadData(year) {
   const sheet = wb.Sheets[wb.SheetNames[0]];
   const raw = XLSX.utils.sheet_to_json(sheet, { defval: '' });
 
-  const validSet = new Set(Object.keys(INCLUDED_CATEGORIES));
-
   return raw
     .map(cleanDefRow)
-    .filter(d => d && validSet.has(d.ethnicity));
+    .map(d => {
+      const mapped = mapEthnicity(d.ethnicity);
+      return mapped ? { ...d, ethnicity: mapped } : null;
+    })
+    .filter(d => d);
 }
 
 function countByEthnicity(rows) {
