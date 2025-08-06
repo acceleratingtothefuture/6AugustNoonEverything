@@ -9,7 +9,10 @@ const POPULATION = {
   'Native Hawaiian and Other Pacific Islander': 165
 };
 
-const COLORS = ['#007acc', '#ff9800'];
+const COLORS = {
+  defendants: '#007acc',
+  population: '#ff9800'
+};
 
 const folder = './data/';
 
@@ -46,8 +49,10 @@ async function loadData() {
   raw.forEach(row => {
     const d = cleanDefRow(row);
     if (!d || !d.ethnicity) return;
+
     const norm = normalizeEthnicity(d.ethnicity);
     if (!norm) return;
+
     counts[norm] = (counts[norm] || 0) + 1;
     total++;
   });
@@ -57,12 +62,16 @@ async function loadData() {
   const defData = labels.map(k => ((counts[k] || 0) / total) * 100);
   const popData = labels.map(k => (POPULATION[k] / popTotal) * 100);
 
-  buildChart(labels, defData, popData);
+  buildBarChart(labels, defData, popData);
 }
 
-function buildChart(labels, defData, popData) {
+function buildBarChart(labels, defData, popData) {
   const ctx = document.getElementById('barChart');
-  const txt = document.getElementById('demoText');
+  const txt = {
+    race: document.querySelector('#demoText .race'),
+    def: document.querySelector('#demoText .def'),
+    pop: document.querySelector('#demoText .pop')
+  };
 
   const chart = new Chart(ctx, {
     type: 'bar',
@@ -72,51 +81,45 @@ function buildChart(labels, defData, popData) {
         {
           label: 'Defendants',
           data: defData,
-          backgroundColor: COLORS[0]
+          backgroundColor: COLORS.defendants
         },
         {
           label: 'Population',
           data: popData,
-          backgroundColor: COLORS[1]
+          backgroundColor: COLORS.population
         }
       ]
     },
     options: {
-      indexAxis: 'y',
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'bottom' },
+        legend: {
+          position: 'top'
+        },
         tooltip: {
-          enabled: false,
-          external: context => {
-            const point = context.tooltip.dataPoints?.[0];
-            if (!point) return;
-            const i = point.dataIndex;
-            const label = labels[i];
-            const defPct = defData[i].toFixed(2);
-            const popPct = popData[i].toFixed(2);
-            txt.textContent = `${label} — ${defPct}% of defendants vs ${popPct}% of population`;
-            txt.style.color = point.dataset.backgroundColor;
+          enabled: false
+        }
+      },
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            callback: value => `${value}%`
           }
         }
       },
-      scales: {
-        x: {
-          ticks: { callback: val => val + '%' },
-          max: Math.max(...defData, ...popData) + 5
-        }
-      },
-      onHover: (evt, el) => {
-        const chartEls = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
-        const index = chartEls[0]?.index;
-
-        chart.data.datasets.forEach((ds, dsi) => {
-          ds.backgroundColor = ds.data.map((_, i) =>
-            i === index ? COLORS[dsi] : '#e0e0e0'
-          );
-        });
-
-        chart.update('none');
+      onHover: (e, elements) => {
+        if (!elements.length) return;
+        const i = elements[0].index;
+        txt.race.textContent = labels[i];
+        txt.def.innerHTML = `<span style="color:${COLORS.defendants}">${defData[i].toFixed(2)}% of defendants</span>`;
+        txt.pop.innerHTML = `<span style="color:${COLORS.population}">${popData[i].toFixed(2)}% of population</span>`;
       }
     }
   });
