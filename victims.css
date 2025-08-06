@@ -121,3 +121,99 @@ body {
   font-size: 1.2rem;
   color: #444;
 }
+
+.victim-flex {
+  display: flex;
+  justify-content: center;      /* Center the flex items horizontally */
+  align-items: flex-start;
+  gap: 40px;
+  padding-left: 0;              /* Remove or reduce left padding */
+}
+
+.victim-left {
+  display: block; /* <-- Change from flex to block */
+  width: auto;
+}
+
+.victimStatsWrap {
+  display: grid;
+  grid-template-columns: 1fr;
+  max-width: 400px;
+  padding: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* Card style */
+.victim-card {
+  background: #fff;
+  border-left: 8px solid #2196f3; /* color can be dynamic */
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 10px;
+  transition: all 0.3s ease;
+  min-height: 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  cursor: pointer;
+  margin-bottom: 20px; /*controls the gap between the cards*/
+}
+
+.victim-card:hover {
+  transform: translateY(-2px);
+  background: #f0f8ff;
+}
+
+.victim-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.victim-value {
+  font-size: 1.6rem;
+  font-weight: 900;
+}
+
+/* .victim-card .percent {
+  font-size: 0.9rem;
+  color: #666;
+} */
+
+.victim-panel {
+  padding-bottom: 25px; /* Add space below the cards for scrolling */
+}
+
+.victim-right {
+  width: 100%;
+  max-width: 400px; /* or however wide you want the description box */
+}
+
+.victim-desc-dynamic {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  min-height: 120px;
+  transition: opacity 0.3s ease;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.victim-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.victim-header h2 {
+  font-size: 2.8rem;  /* Make it large */
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+.victim-sub {
+  font-size: 1.5rem;  /* Larger than default */
+  font-weight: 600;
+  color: #444;
+}
