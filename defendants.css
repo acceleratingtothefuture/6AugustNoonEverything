@@ -106,13 +106,13 @@ canvas {
 /* MAIN SECTION */
 #panelMain {
   padding: 30px 20px;
-  max-width: 1100px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
 .dashboard-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 }
 
 .dashboard-header h2 {
@@ -126,53 +126,23 @@ canvas {
   color: #444;
 }
 
-/* FLEX LAYOUT */
-.demo-flexbox {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 40px;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-.pie-column {
+/* CHART + TEXT */
+.bar-section {
   display: flex;
   flex-direction: column;
-  gap: 40px;
-  flex: 1 1 300px;
-  max-width: 400px;
   align-items: center;
+  gap: 20px;
 }
 
-.pie-box {
-  width: 100%;
-  text-align: center;
-}
-
-.chart-label {
-  font-weight: 600;
-  margin-top: 12px;
-  color: #333;
-}
-
-/* TEXTBOX */
-.demo-textbox {
-  flex: 1 1 300px;
-  max-width: 400px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 300px;
-  text-align: center;
-  padding: 20px;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-}
-
-.demo-text {
-  font-size: 1.2rem;
+#demoText {
+  font-size: 1.05rem;
   font-weight: 700;
+  text-align: center;
   color: #007acc;
-  transition: color 0.3s ease;
+  min-height: 1.2em;
+}
+
+#barChart {
+  width: 100%;
+  max-width: 720px;
 }
