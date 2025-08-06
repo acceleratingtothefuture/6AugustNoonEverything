@@ -43,12 +43,14 @@ async function loadData(year) {
   const raw = XLSX.utils.sheet_to_json(sheet, { defval: '' });
 
   return raw
-    .map(cleanDefRow)
-    .map(d => {
-      const mapped = mapEthnicity(d.ethnicity);
-      return mapped ? { ...d, ethnicity: mapped } : null;
-    })
-    .filter(d => d);
+ .map(cleanDefRow)
+.filter(d => d && d.ethnicity)
+.map(d => {
+  const mapped = mapEthnicity(d.ethnicity);
+  return mapped ? { ...d, ethnicity: mapped } : null;
+})
+.filter(d => d);
+
 }
 
 function countByEthnicity(rows) {
