@@ -70,8 +70,8 @@ async function loadData() {
 }
 
 function buildCharts(labels, defData, popData, colors) {
-  const ctxDef = document.getElementById('pieDef');
-  const ctxPop = document.getElementById('piePop');
+  const ctxDef = document.getElementById('defendantsPie');
+  const ctxPop = document.getElementById('censusPie');
   const txt = document.getElementById('demoText');
 
   const pie1 = new Chart(ctxDef, {
