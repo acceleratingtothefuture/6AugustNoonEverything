@@ -12,10 +12,6 @@ body {
   line-height: 1.6;
 }
 
-canvas {
-  max-width: 100%;
-}
-
 /* NAVBAR */
 .nav {
   background: linear-gradient(90deg, #1a1c3a, #0d0e22);
@@ -106,13 +102,13 @@ canvas {
 /* MAIN SECTION */
 #panelMain {
   padding: 30px 20px;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
 .dashboard-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
 .dashboard-header h2 {
@@ -126,23 +122,42 @@ canvas {
   color: #444;
 }
 
-/* CHART + TEXT */
-.bar-section {
+/* CHART + TEXT LAYOUT */
+.chart-area {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 30px;
 }
 
+/* HOVER TEXT */
 #demoText {
-  font-size: 1.05rem;
+  font-size: 1.3rem;
   font-weight: 700;
   text-align: center;
-  color: #007acc;
-  min-height: 1.2em;
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-#barChart {
+#demoText .race {
+  color: #111;
+  font-size: 1.4rem;
+  margin-bottom: 4px;
+}
+
+#demoText .def {
+  color: #007acc;
+}
+
+#demoText .pop {
+  color: #ff9800;
+}
+
+/* CHART CANVAS */
+canvas {
+  max-width: 100%;
   width: 100%;
-  max-width: 720px;
+  height: 500px;
 }
