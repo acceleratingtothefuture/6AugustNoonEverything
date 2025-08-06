@@ -9,13 +9,22 @@ const POPULATION = {
   'Native Hawaiian and Other Pacific Islander': 165
 };
 
-const COLORS = [
+const BASE_COLORS = [
   '#e91e63', '#ff9800', '#ffe600', '#4caf50', '#00bcd4', '#9c27b0'
 ];
 
+const DIM_COLORS = BASE_COLORS.map(c => lightenColor(c, 0.6));
+
 const folder = './data/';
 
-// check for most recent available year file
+function lightenColor(hex, amt) {
+  const num = parseInt(hex.replace('#',''),16);
+  let r = (num >> 16) + amt * (255 - (num >> 16));
+  let g = ((num >> 8) & 0x00FF) + amt * (255 - ((num >> 8) & 0x00FF));
+  let b = (num & 0x0000FF) + amt * (255 - (num & 0x0000FF));
+  return `rgb(${Math.min(255, r)}, ${Math.min(255, g)}, ${Math.min(255, b)})`;
+}
+
 async function getLatestYear() {
   const thisYear = new Date().getFullYear();
   for (let y = thisYear; y >= 2015; y--) {
@@ -25,7 +34,6 @@ async function getLatestYear() {
   throw new Error('No defendant file found');
 }
 
-// normalize ethnicity labels to Census race buckets
 function normalizeEthnicity(raw) {
   const eth = String(raw).toLowerCase();
 
@@ -64,7 +72,7 @@ async function loadData() {
   const popTotal = Object.values(POPULATION).reduce((a, b) => a + b, 0);
   const defData = labels.map(k => ((counts[k] || 0) / total) * 100);
   const popData = labels.map(k => (POPULATION[k] / popTotal) * 100);
-  const colors = labels.map((_, i) => COLORS[i % COLORS.length]);
+  const colors = labels.map((_, i) => BASE_COLORS[i % BASE_COLORS.length]);
 
   buildCharts(labels, defData, popData, colors);
 }
@@ -78,31 +86,51 @@ function buildCharts(labels, defData, popData, colors) {
     type: 'pie',
     data: {
       labels,
-      datasets: [{ data: defData, backgroundColor: colors }]
+      datasets: [{
+        data: defData,
+        backgroundColor: colors
+      }]
     },
-    options: { plugins: { legend: { position: 'right' } } }
+    options: {
+      plugins: {
+        legend: { position: 'right' }
+      }
+    }
   });
 
   const pie2 = new Chart(ctxPop, {
     type: 'pie',
     data: {
       labels,
-      datasets: [{ data: popData, backgroundColor: colors }]
+      datasets: [{
+        data: popData,
+        backgroundColor: colors
+      }]
     },
-    options: { plugins: { legend: { display: false } } }
+    options: {
+      plugins: {
+        legend: { display: false }
+      }
+    }
   });
 
-  const handleHover = (index) => {
+  function handleHover(index) {
     txt.textContent = `${labels[index]} — ${defData[index].toFixed(2)}% of defendants vs ${popData[index].toFixed(2)}% of population`;
     txt.style.color = colors[index];
-  };
 
-  ctxDef.onmousemove = (evt) => {
+    pie1.data.datasets[0].backgroundColor = colors.map((c, i) => i === index ? c : DIM_COLORS[i]);
+    pie2.data.datasets[0].backgroundColor = colors.map((c, i) => i === index ? c : DIM_COLORS[i]);
+
+    pie1.update();
+    pie2.update();
+  }
+
+  ctxDef.onmousemove = evt => {
     const points = pie1.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
     if (points.length) handleHover(points[0].index);
   };
 
-  ctxPop.onmousemove = (evt) => {
+  ctxPop.onmousemove = evt => {
     const points = pie2.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
     if (points.length) handleHover(points[0].index);
   };
