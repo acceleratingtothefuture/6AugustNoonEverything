@@ -15,7 +15,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
-  <!-- dashboard logic -->
+  <!-- logic -->
   <script type="module" src="defendants.js" defer></script>
 </head>
 <body>
@@ -45,15 +45,16 @@
   <section id="panelMain">
     <div class="dashboard-header">
       <h2>Defendant Demographics</h2>
-      <p>This chart shows how defendant demographics compare to the Imperial County population.</p>
+      <p>This chart compares the racial/ethnic breakdown of defendants to Imperial County’s population.</p>
     </div>
 
-    <div class="chart-area">
-      <div id="demoText">
-        <div class="race">Hover over a bar</div>
-        <div class="def"></div>
-        <div class="pop"></div>
-      </div>
+    <div class="hover-box">
+      <div id="hoverRace" class="hover-line"></div>
+      <div id="hoverDef" class="hover-line"></div>
+      <div id="hoverPop" class="hover-line"></div>
+    </div>
+
+    <div class="bar-chart-box">
       <canvas id="barChart"></canvas>
     </div>
   </section>
