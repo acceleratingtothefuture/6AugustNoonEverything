@@ -126,13 +126,20 @@ canvas {
   color: #444;
 }
 
-/* CHARTS */
-.demo-pies {
+/* FLEXBOX CHART SECTION */
+.demo-flex-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
   gap: 40px;
+}
+
+.piechart-flexbox {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  align-items: center;
 }
 
 .pie-box {
@@ -149,7 +156,8 @@ canvas {
 .demo-text {
   font-size: 1rem;
   font-weight: 700;
-  min-width: 200px;
-  text-align: center;
+  min-width: 220px;
+  max-width: 240px;
+  text-align: left;
   color: #007acc;
 }
