@@ -5,20 +5,22 @@
   padding: 0;
 }
 
-html, body {
+body {
   font-family: 'Inter', sans-serif;
   background: #f8f9fa;
   color: #222;
   line-height: 1.6;
-  width: 100%;
-  overflow-x: hidden;
+}
+
+canvas {
+  max-width: 100%;
 }
 
 /* NAVBAR */
 .nav {
   background: linear-gradient(90deg, #1a1c3a, #0d0e22);
   color: #fff;
-  padding: 16px 20px;
+  padding: 12px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -35,12 +37,12 @@ html, body {
 }
 
 .brand-main {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 700;
 }
 
 .brand-sub {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   color: #a9b0d4;
   font-weight: 400;
 }
@@ -70,7 +72,7 @@ html, body {
   color: #a9b0d4;
 }
 
-/* NAVIGATION LINKS */
+/* NAVIGATION */
 .main-nav {
   display: flex;
   justify-content: center;
@@ -110,13 +112,13 @@ html, body {
 
 .dashboard-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 }
 
 .dashboard-header h2 {
   font-size: 2.2rem;
   font-weight: 800;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .dashboard-header p {
@@ -124,30 +126,27 @@ html, body {
   color: #444;
 }
 
-/* CHARTS */
-.chart-area {
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
+/* CHART AREA */
+.bar-chart-box {
+  padding: 30px;
 }
 
-#chartBox {
-  width: 100%;
-  max-width: 1000px;
-  padding: 20px 10px 40px;
-}
-
-canvas {
-  width: 100% !important;
-  height: 400px !important;
-}
-
-#demoText {
-  font-size: 1.25rem;
-  font-weight: 700;
+.hover-box {
   text-align: center;
-  line-height: 1.6;
-  min-height: 80px;
   margin-bottom: 20px;
+  min-height: 70px;
+}
+
+.hover-line {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 4px 0;
+}
+
+#hoverDef {
+  color: #007acc;
+}
+
+#hoverPop {
+  color: #ff9800;
 }
