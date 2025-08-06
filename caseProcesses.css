@@ -12,7 +12,7 @@ body {
   line-height: 1.6;
 }
 
-/* NAVBAR */
+/* NAVBAR / HEADER */
 .nav {
   background: linear-gradient(90deg, #1a1c3a, #0d0e22);
   color: #fff;
@@ -49,7 +49,7 @@ body {
   flex-shrink: 0;
 }
 
-/* HERO */
+/* HERO SECTION */
 .hero {
   background: linear-gradient(270deg, #242673 30%, #15163d 100%);
   color: #dfe3f7;
@@ -99,7 +99,7 @@ body {
   cursor: default;
 }
 
-/* MAIN SECTION */
+/* PANEL & TITLE SECTION */
 #panelMain {
   padding: 30px 20px;
   max-width: 1000px;
@@ -120,4 +120,75 @@ body {
 .dashboard-header p {
   font-size: 1.2rem;
   color: #444;
+}
+
+/* CHART BOXES */
+.chart-box {
+  max-width: 800px;
+  margin: 30px auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+}
+
+.chart-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.chart-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.chart-month {
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.chart-number {
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: #222;
+  text-align: center;
+  margin-bottom: 10px;
+  min-height: 0.5rem;
+}
+
+.chart-canvas {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #999;
+  margin-top: 8px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 800px) {
+  .chart-box {
+    max-width: 100%;
+    margin: 20px 10px;
+    padding: 15px;
+  }
+
+  .logo {
+    height: 80px;
+  }
+
+  .brand-main {
+    font-size: 1.3rem;
+  }
+
+  .brand-sub {
+    font-size: 0.9rem;
+  }
 }
