@@ -135,13 +135,3 @@ body {
   color: #444;
   font-size: 1rem;
 }
-
-/* FOOTER */
-footer {
-  text-align: center;
-  padding: 20px 0;
-  font-size: 0.9rem;
-  color: #555;
-  background: #f0f0f0;
-  margin-top: 60px;
-}
