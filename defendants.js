@@ -10,17 +10,24 @@ const POPULATION = {
 };
 
 const COLORS = {
-  defendants: '#007acc',
-  population: '#ff9800'
+  'Hispanic or Latino': '#e91e63',
+  'White': '#ff9800',
+  'Black or African American': '#ffe600',
+  'Asian': '#4caf50',
+  'American Indian and Alaska Native': '#00bcd4',
+  'Native Hawaiian and Other Pacific Islander': '#9c27b0'
 };
+
+const DEF_COLOR = '#007acc';
+const POP_COLOR = '#ff9800';
 
 const folder = './data/';
 
 async function getLatestYear() {
   const thisYear = new Date().getFullYear();
   for (let y = thisYear; y >= 2015; y--) {
-    const head = await fetch(`${folder}defendants_${y}.xlsx`, { method: 'HEAD' });
-    if (head.ok) return y;
+    const res = await fetch(`${folder}defendants_${y}.xlsx`, { method: 'HEAD' });
+    if (res.ok) return y;
   }
   throw new Error('No defendant file found');
 }
@@ -49,10 +56,8 @@ async function loadData() {
   raw.forEach(row => {
     const d = cleanDefRow(row);
     if (!d || !d.ethnicity) return;
-
     const norm = normalizeEthnicity(d.ethnicity);
     if (!norm) return;
-
     counts[norm] = (counts[norm] || 0) + 1;
     total++;
   });
@@ -61,17 +66,16 @@ async function loadData() {
   const popTotal = Object.values(POPULATION).reduce((a, b) => a + b, 0);
   const defData = labels.map(k => ((counts[k] || 0) / total) * 100);
   const popData = labels.map(k => (POPULATION[k] / popTotal) * 100);
+  const chartColors = labels.map(k => COLORS[k]);
 
-  buildBarChart(labels, defData, popData);
+  buildChart(labels, defData, popData, chartColors);
 }
 
-function buildBarChart(labels, defData, popData) {
+function buildChart(labels, defData, popData, chartColors) {
   const ctx = document.getElementById('barChart');
-  const txt = {
-    race: document.querySelector('#demoText .race'),
-    def: document.querySelector('#demoText .def'),
-    pop: document.querySelector('#demoText .pop')
-  };
+  const hoverRace = document.getElementById('hoverRace');
+  const hoverDef = document.getElementById('hoverDef');
+  const hoverPop = document.getElementById('hoverPop');
 
   const chart = new Chart(ctx, {
     type: 'bar',
@@ -81,18 +85,27 @@ function buildBarChart(labels, defData, popData) {
         {
           label: 'Defendants',
           data: defData,
-          backgroundColor: COLORS.defendants
+          backgroundColor: DEF_COLOR
         },
         {
           label: 'Population',
           data: popData,
-          backgroundColor: COLORS.population
+          backgroundColor: POP_COLOR
         }
       ]
     },
     options: {
+      indexAxis: 'y',
       responsive: true,
-      maintainAspectRatio: false,
+      scales: {
+        x: {
+          beginAtZero: true,
+          ticks: {
+            callback: val => val + '%'
+          },
+          suggestedMax: 100
+        }
+      },
       plugins: {
         legend: {
           position: 'top'
@@ -101,25 +114,13 @@ function buildBarChart(labels, defData, popData) {
           enabled: false
         }
       },
-      interaction: {
-        mode: 'index',
-        intersect: false
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 100,
-          ticks: {
-            callback: value => `${value}%`
-          }
-        }
-      },
-      onHover: (e, elements) => {
-        if (!elements.length) return;
-        const i = elements[0].index;
-        txt.race.textContent = labels[i];
-        txt.def.innerHTML = `<span style="color:${COLORS.defendants}">${defData[i].toFixed(2)}% of defendants</span>`;
-        txt.pop.innerHTML = `<span style="color:${COLORS.population}">${popData[i].toFixed(2)}% of population</span>`;
+      onHover: (event, chartElement) => {
+        if (chartElement.length === 0) return;
+
+        const i = chartElement[0].index;
+        hoverRace.textContent = labels[i];
+        hoverDef.textContent = `${defData[i].toFixed(2)}% of defendants`;
+        hoverPop.textContent = `${popData[i].toFixed(2)}% of population`;
       }
     }
   });
