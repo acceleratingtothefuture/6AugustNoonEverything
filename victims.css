@@ -99,7 +99,7 @@ body {
   cursor: default;
 }
 
-/* MAIN SECTION */
+/* MAIN PANEL */
 #panelMain {
   padding: 30px 20px;
   max-width: 1000px;
@@ -122,32 +122,31 @@ body {
   color: #444;
 }
 
+/* FLEX WRAPPER FOR CONTENT */
 .victim-flex {
   display: flex;
-  justify-content: center;      /* Center the flex items horizontally */
+  justify-content: center;
   align-items: flex-start;
   gap: 40px;
-  padding-left: 0;              /* Remove or reduce left padding */
+  flex-wrap: wrap;
 }
 
+/* LEFT COLUMN - CARDS */
 .victim-left {
-  display: block; /* <-- Change from flex to block */
-  width: auto;
+  width: 100%;
+  max-width: 400px;
 }
 
-.victimStatsWrap {
+#victimStatsWrap {
   display: grid;
   grid-template-columns: 1fr;
-  max-width: 400px;
-  padding: 0;
-  margin-left: 0;
-  margin-right: 0;
+  gap: 20px;
 }
 
-/* Card style */
+/* CARD STYLE */
 .victim-card {
   background: #fff;
-  border-left: 8px solid #2196f3; /* color can be dynamic */
+  border-left: 8px solid #2196f3;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   padding: 10px;
@@ -157,7 +156,6 @@ body {
   flex-direction: column;
   justify-content: center;
   cursor: pointer;
-  margin-bottom: 20px; /*controls the gap between the cards*/
 }
 
 .victim-card:hover {
@@ -176,18 +174,15 @@ body {
   font-weight: 900;
 }
 
-/* .victim-card .percent {
+.percent {
   font-size: 0.9rem;
   color: #666;
-} */
-
-.victim-panel {
-  padding-bottom: 25px; /* Add space below the cards for scrolling */
 }
 
+/* RIGHT COLUMN - DESCRIPTION BOX */
 .victim-right {
   width: 100%;
-  max-width: 400px; /* or however wide you want the description box */
+  max-width: 400px;
 }
 
 .victim-desc-dynamic {
@@ -201,19 +196,38 @@ body {
   overflow-wrap: break-word;
 }
 
-.victim-header {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.victim-header h2 {
-  font-size: 2.8rem;  /* Make it large */
-  font-weight: 800;
-  margin-bottom: 20px;
-}
-
+/* TEXT STYLES FOR SUBHEADER */
 .victim-sub {
-  font-size: 1.5rem;  /* Larger than default */
+  font-size: 1.5rem;
   font-weight: 600;
   color: #444;
+}
+
+/* RESPONSIVE */
+@media (max-width: 800px) {
+  .logo {
+    height: 80px;
+  }
+
+  .brand-main {
+    font-size: 1.3rem;
+  }
+
+  .brand-sub {
+    font-size: 0.9rem;
+  }
+
+  #panelMain {
+    padding: 20px 10px;
+  }
+
+  .victim-flex {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .victim-left,
+  .victim-right {
+    max-width: 100%;
+  }
 }
