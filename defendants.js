@@ -15,28 +15,32 @@ const COLORS = [
 
 const folder = './data/';
 
-async function getLatestFile() {
-  const year = new Date().getFullYear();
-  for (let y = year; y >= 2015; y--) {
-    const res = await fetch(`${folder}defendants_${y}.xlsx`, { method: 'HEAD' });
-    if (res.ok) return y;
+// check for most recent available year file
+async function getLatestYear() {
+  const thisYear = new Date().getFullYear();
+  for (let y = thisYear; y >= 2015; y--) {
+    const head = await fetch(`${folder}defendants_${y}.xlsx`, { method: 'HEAD' });
+    if (head.ok) return y;
   }
-  throw new Error('No valid defendants_[year].xlsx file found.');
+  throw new Error('No defendant file found');
 }
 
+// normalize ethnicity labels to Census race buckets
 function normalizeEthnicity(raw) {
-  const eth = raw.toLowerCase();
+  const eth = String(raw).toLowerCase();
+
   if (eth.includes('white')) return 'White';
   if (eth.includes('black')) return 'Black or African American';
   if (eth.includes('asian')) return 'Asian';
-  if (eth.includes('hispanic')) return 'Hispanic or Latino';
+  if (eth.includes('hispanic') || eth.includes('latino')) return 'Hispanic or Latino';
   if (eth.includes('american indian') || eth.includes('alaska')) return 'American Indian and Alaska Native';
   if (eth.includes('hawaiian') || eth.includes('pacific')) return 'Native Hawaiian and Other Pacific Islander';
+
   return null;
 }
 
 async function loadData() {
-  const year = await getLatestFile();
+  const year = await getLatestYear();
   const buffer = await fetch(`${folder}defendants_${year}.xlsx`).then(r => r.arrayBuffer());
   const wb = XLSX.read(buffer, { type: 'array' });
   const sheet = wb.Sheets[wb.SheetNames[0]];
@@ -49,25 +53,28 @@ async function loadData() {
     const d = cleanDefRow(row);
     if (!d || !d.ethnicity) return;
 
-    const eth = normalizeEthnicity(d.ethnicity);
-    if (!eth) return;
+    const norm = normalizeEthnicity(d.ethnicity);
+    if (!norm) return;
 
-    counts[eth] = (counts[eth] || 0) + 1;
+    counts[norm] = (counts[norm] || 0) + 1;
     total++;
   });
 
   const labels = Object.keys(POPULATION);
   const popTotal = Object.values(POPULATION).reduce((a, b) => a + b, 0);
-
-  const defData = labels.map(k => (counts[k] || 0) / total * 100);
-  const popData = labels.map(k => POPULATION[k] / popTotal * 100);
+  const defData = labels.map(k => ((counts[k] || 0) / total) * 100);
+  const popData = labels.map(k => (POPULATION[k] / popTotal) * 100);
   const colors = labels.map((_, i) => COLORS[i % COLORS.length]);
 
   buildCharts(labels, defData, popData, colors);
 }
 
 function buildCharts(labels, defData, popData, colors) {
-  const pie1 = new Chart(document.getElementById('pieDef'), {
+  const ctxDef = document.getElementById('pieDef');
+  const ctxPop = document.getElementById('piePop');
+  const txt = document.getElementById('demoText');
+
+  const pie1 = new Chart(ctxDef, {
     type: 'pie',
     data: {
       labels,
@@ -76,7 +83,7 @@ function buildCharts(labels, defData, popData, colors) {
     options: { plugins: { legend: { position: 'right' } } }
   });
 
-  const pie2 = new Chart(document.getElementById('piePop'), {
+  const pie2 = new Chart(ctxPop, {
     type: 'pie',
     data: {
       labels,
@@ -85,21 +92,19 @@ function buildCharts(labels, defData, popData, colors) {
     options: { plugins: { legend: { display: false } } }
   });
 
-  const txt = document.getElementById('demoText');
-
-  const showHover = (i) => {
-    txt.textContent = `${labels[i]} — ${defData[i].toFixed(2)}% of defendants vs ${popData[i].toFixed(2)}% of population`;
-    txt.style.color = colors[i];
+  const handleHover = (index) => {
+    txt.textContent = `${labels[index]} — ${defData[index].toFixed(2)}% of defendants vs ${popData[index].toFixed(2)}% of population`;
+    txt.style.color = colors[index];
   };
 
-  document.getElementById('pieDef').onmousemove = (evt) => {
-    const point = pie1.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
-    if (point.length) showHover(point[0].index);
+  ctxDef.onmousemove = (evt) => {
+    const points = pie1.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+    if (points.length) handleHover(points[0].index);
   };
 
-  document.getElementById('piePop').onmousemove = (evt) => {
-    const point = pie2.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
-    if (point.length) showHover(point[0].index);
+  ctxPop.onmousemove = (evt) => {
+    const points = pie2.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+    if (points.length) handleHover(points[0].index);
   };
 }
 
