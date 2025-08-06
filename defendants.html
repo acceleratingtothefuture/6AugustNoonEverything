@@ -15,7 +15,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
-  <!-- dashboard logic -->
+  <!-- logic -->
   <script type="module" src="defendants.js" defer></script>
 </head>
 <body>
@@ -48,8 +48,8 @@
       <p>This chart shows how defendant demographics compare to the Imperial County population.</p>
     </div>
 
-    <div class="demo-flex-wrapper">
-      <div class="piechart-flexbox">
+    <div class="demo-flexbox">
+      <div class="pie-column">
         <div class="pie-box">
           <canvas id="defendantsPie"></canvas>
           <div class="chart-label">Defendants</div>
@@ -59,7 +59,9 @@
           <div class="chart-label">County Population</div>
         </div>
       </div>
-      <div class="demo-text" id="demoText">Hover over a slice</div>
+      <div class="demo-textbox">
+        <div class="demo-text" id="demoText">Hover over a slice to compare percentages.</div>
+      </div>
     </div>
   </section>
 
