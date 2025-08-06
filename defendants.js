@@ -2,15 +2,13 @@ import { cleanDefRow } from './cleanData.js';
 
 const FOLDER = './data/';
 
-const COUNTY_POP = {
+const INCLUDED_CATEGORIES = {
   'Hispanic or Latino': 153027,
   'White': 16813,
   'Black or African American': 4362,
   'Asian': 3049,
   'American Indian and Alaska Native': 4266,
-  'Native Hawaiian and Other Pacific Islander': 165,
-  'Two or More Races': 49795,
-  'Some Other Race': 70528
+  'Native Hawaiian and Other Pacific Islander': 165
 };
 
 const COLORS = ['#2196f3', '#f44336'];
@@ -30,30 +28,34 @@ async function loadData(year) {
   const wb = XLSX.read(buf, { type: 'array' });
   const sheet = wb.Sheets[wb.SheetNames[0]];
   const raw = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-  return raw.map(cleanDefRow).filter(d => d && d.ethnicity && d.ethnicity !== 'Unknown');
+
+  const validSet = new Set(Object.keys(INCLUDED_CATEGORIES));
+
+  return raw
+    .map(cleanDefRow)
+    .filter(d => d && validSet.has(d.ethnicity));
 }
 
 function countByEthnicity(rows) {
   const counts = {};
+  Object.keys(INCLUDED_CATEGORIES).forEach(k => counts[k] = 0);
+
   rows.forEach(d => {
-    const eth = d.ethnicity;
-    counts[eth] = (counts[eth] || 0) + 1;
+    if (counts.hasOwnProperty(d.ethnicity)) {
+      counts[d.ethnicity]++;
+    }
   });
+
   return counts;
 }
 
 function buildChart(defCounts) {
   const totalDefendants = Object.values(defCounts).reduce((a, b) => a + b, 0);
-  const totalPop = Object.values(COUNTY_POP).reduce((a, b) => a + b, 0);
+  const totalPop = Object.values(INCLUDED_CATEGORIES).reduce((a, b) => a + b, 0);
 
-  const allGroups = new Set([
-    ...Object.keys(defCounts),
-    ...Object.keys(COUNTY_POP)
-  ]);
-
-  const labels = Array.from(allGroups).sort((a, b) => a.localeCompare(b));
+  const labels = Object.keys(INCLUDED_CATEGORIES);
   const defData = labels.map(k => (defCounts[k] || 0) / totalDefendants * 100);
-  const popData = labels.map(k => (COUNTY_POP[k] || 0) / totalPop * 100);
+  const popData = labels.map(k => INCLUDED_CATEGORIES[k] / totalPop * 100);
 
   const ctx = document.getElementById('ethnicityChart').getContext('2d');
   new Chart(ctx, {
